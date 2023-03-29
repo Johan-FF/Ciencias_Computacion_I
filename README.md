@@ -4,9 +4,9 @@ _Repositorio de algortimos y estructuras de datos trabajados en la clase de Cien
 
 ## Comenzando 🚀
 
-_Estas instrucciones te permitirán obtener una copia del proyecto en funcionamiento en tu máquina local para propósitos de desarrollo y pruebas._
+_ Entorno de desarrollo trabajo en Dev C++ 5.11 ._
 
 ## Autores ✒️
 
-_Juan Esteban Carrillo - [GitHub](https://github.com/JuanCarrill0)_
-_Johan Andres Tamara [GitHub](https://github.com/Johan-FF)_
+Juan Esteban Carrillo - [GitHub](https://github.com/JuanCarrill0)
+Johan Andres Tamara [GitHub](https://github.com/Johan-FF)
