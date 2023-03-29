@@ -11,6 +11,11 @@ struct Estudiante {
 };
 
 class ListaEstudiantes {
+
+private:
+    Estudiante* primero_ = nullptr;
+    
+    
 public:
     void insertar(Estudiante* estudiante) {
         // Caso especial: lista vacía
@@ -83,9 +88,6 @@ public:
             actual = actual->siguiente;
         }
     }
-
-private:
-    Estudiante* primero_ = nullptr;
 };
 
 int main() {
@@ -111,20 +113,6 @@ int main() {
     // Imprimir lista final
     lista.imprimir();
 
-    // Liberar memoria de estudiantes
-   
-	Estudiante* actual = lista.buscar(1002);
-	if (actual != nullptr) {
-	    delete actual;
-	}
-	actual = lista.buscar(1003);
-	if (actual != nullptr) {
-	    delete actual;
-	}
-	actual = lista.buscar(1001);
-	if (actual != nullptr) {
-	    delete actual;
-	}
 	
 	return 0;
 }
