@@ -1,83 +1,130 @@
 #include <iostream>
 #include <string>
-#include <vector>
 
 using namespace std;
 
-class Estudiante {
-public:
-    Estudiante(string nombre, int codigo) : nombre_(nombre), codigo_(codigo) {}
-
-    string getNombre() const { return nombre_; }
-    int getCodigo() const { return codigo_; }
-
-    void setNombre(string nombre) { nombre_ = nombre; }
-    void setCodigo(int codigo) { codigo_ = codigo; }
-
-private:
-    string nombre_;
-    int codigo_;
+struct Estudiante {
+    string nombre;
+    int codigo;
+    Estudiante* siguiente = nullptr;
+    Estudiante(string nom, int cod) : nombre(nom), codigo(cod), siguiente(nullptr) {}
 };
 
 class ListaEstudiantes {
 public:
-    void insertar(Estudiante estudiante) {
-        estudiantes_.push_back(estudiante);
+    void insertar(Estudiante* estudiante) {
+        // Caso especial: lista vacía
+        if (primero_ == nullptr) {
+            primero_ = estudiante;
+            return;
+        }
+
+        // Caso especial: insertar al principio
+        if (estudiante->codigo < primero_->codigo) {
+            estudiante->siguiente = primero_;
+            primero_ = estudiante;
+            return;
+        }
+
+        // Caso general: insertar en medio o al final
+        Estudiante* actual = primero_;
+        while (actual->siguiente != nullptr && estudiante->codigo > actual->siguiente->codigo) {
+            actual = actual->siguiente;
+        }
+        estudiante->siguiente = actual->siguiente;
+        actual->siguiente = estudiante;
     }
 
     void eliminar(int codigo) {
-        for (auto it = estudiantes_.begin(); it != estudiantes_.end(); ++it) {
-            if (it->getCodigo() == codigo) {
-                estudiantes_.erase(it);
-                break;
-            }
+        if (primero_ == nullptr) {
+            return;
+        }
+
+        // Caso especial: eliminar el primero
+        if (primero_->codigo == codigo) {
+            Estudiante* temp = primero_;
+            primero_ = primero_->siguiente;
+            delete temp;
+            return;
+        }
+
+        // Caso general: buscar y eliminar
+        Estudiante* actual = primero_;
+        while (actual->siguiente != nullptr && actual->siguiente->codigo != codigo) {
+            actual = actual->siguiente;
+        }
+        if (actual->siguiente != nullptr) {
+            Estudiante* temp = actual->siguiente;
+            actual->siguiente = actual->siguiente->siguiente;
+            delete temp;
         }
     }
 
+    Estudiante* buscar(int codigo) const {
+        Estudiante* actual = primero_;
+        while (actual != nullptr && actual->codigo != codigo) {
+            actual = actual->siguiente;
+        }
+        return actual;
+    }
+
     void modificar(int codigo, string nuevo_nombre) {
-        for (auto& estudiante : estudiantes_) {
-            if (estudiante.getCodigo() == codigo) {
-                estudiante.setNombre(nuevo_nombre);
-                break;
-            }
+        Estudiante* estudiante = buscar(codigo);
+        if (estudiante != nullptr) {
+            estudiante->nombre = nuevo_nombre;
         }
     }
 
     void imprimir() const {
-        for (const auto& estudiante : estudiantes_) {
-            cout << "Nombre: " << estudiante.getNombre() << ", Codigo: " << estudiante.getCodigo() << endl;
+        cout << "Lista de estudiantes (ordenada por codigo):" << endl;
+        Estudiante* actual = primero_;
+        while (actual != nullptr) {
+            cout << "Nombre: " << actual->nombre << ", Codigo: " << actual->codigo << endl;
+            actual = actual->siguiente;
         }
     }
 
 private:
-    vector<Estudiante> estudiantes_;
+    Estudiante* primero_ = nullptr;
 };
 
 int main() {
     ListaEstudiantes lista;
 
     // Insertar estudiantes
-    lista.insertar(Estudiante("Juan", 1001));
-    lista.insertar(Estudiante("Maria", 1002));
-    lista.insertar(Estudiante("Carlos", 1003));
+    lista.insertar(new Estudiante{ "Juan", 1003 });
+    lista.insertar(new Estudiante{ "Maria", 1001 });
+    lista.insertar(new Estudiante{ "Carlos", 1002 });
 
     // Imprimir lista
-    cout << "Lista de estudiantes:" << endl;
     lista.imprimir();
 
     // Modificar estudiante
     lista.modificar(1002, "Mariana");
 
     // Imprimir lista actualizada
-    cout << "Lista de estudiantes actualizada:" << endl;
     lista.imprimir();
 
     // Eliminar estudiante
     lista.eliminar(1003);
 
     // Imprimir lista final
-    cout << "Lista de estudiantes final:" << endl;
     lista.imprimir();
 
-    return 0;
+    // Liberar memoria de estudiantes
+   
+	Estudiante* actual = lista.buscar(1002);
+	if (actual != nullptr) {
+	    delete actual;
+	}
+	actual = lista.buscar(1003);
+	if (actual != nullptr) {
+	    delete actual;
+	}
+	actual = lista.buscar(1001);
+	if (actual != nullptr) {
+	    delete actual;
+	}
+	
+	return 0;
 }
