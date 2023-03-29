@@ -54,8 +54,9 @@ void imprimir_menu(){
 }
 
 void ejecutar_funcionamiento(void **listas, int opcion){
+    int recorrido = 1;
     switch(opcion){
-        case 1:
+        case 1:{
             Lista<int>* lista_enteros;
             lista_enteros = static_cast<Lista<int>*>(listas[0]);
             imprimir_submenu();
@@ -63,8 +64,15 @@ void ejecutar_funcionamiento(void **listas, int opcion){
             if(opcion>=1 && opcion<=7) {
                 ejecutar_metodo(lista_enteros, opcion);
             }
+            while( lista_enteros->getTam()>=recorrido ){
+                std::cout<<lista_enteros->buscar(recorrido)<<", ";
+                recorrido+=1;
+            }
+            std::cout<<endl;
             break;
-        case 2:
+        }
+        case 2:{
+            
             Lista<float>* lista_flotantes;
             lista_flotantes = static_cast<Lista<float>*>(listas[1]);
             imprimir_submenu();
@@ -72,8 +80,15 @@ void ejecutar_funcionamiento(void **listas, int opcion){
             if(opcion>=1 && opcion<=7) {
                 ejecutar_metodo(lista_flotantes, opcion);
             }
+            while( lista_flotantes->getTam()>=recorrido ){
+                std::cout<<lista_flotantes->buscar(recorrido)<<", ";
+                recorrido+=1;
+            }
+            std::cout<<endl;
             break;
-        case 3:
+        }
+        case 3:{
+
             Lista<char>* lista_chars;
             lista_chars = static_cast<Lista<char>*>(listas[2]);
             imprimir_submenu();
@@ -81,8 +96,14 @@ void ejecutar_funcionamiento(void **listas, int opcion){
             if(opcion>=1 && opcion<=7) {
                 ejecutar_metodo(lista_chars, opcion);
             }
+            while( lista_chars->getTam()>=recorrido ){
+                std::cout<<lista_chars->buscar(recorrido)<<", ";
+                recorrido+=1;
+            }
+            std::cout<<endl;
             break;
-        case 4:
+        }
+        case 4:{
             Lista<Estudiante>* lista_estudiantes;
             lista_estudiantes = static_cast<Lista<Estudiante>*>(listas[3]);
             imprimir_submenu();
@@ -90,7 +111,15 @@ void ejecutar_funcionamiento(void **listas, int opcion){
             if(opcion>=1 && opcion<=7) {
                 ejecutar_metodo(lista_estudiantes, opcion);
             }
+            Estudiante aux;
+            while( lista_estudiantes->getTam()>=recorrido ){
+                aux = lista_estudiantes->buscar(recorrido);
+                std::cout<<aux.codigo<<" "<<aux.nombre<<", ";
+                recorrido+=1;
+            }
+            std::cout<<endl;
             break;
+        }
         default:
             break;
     }

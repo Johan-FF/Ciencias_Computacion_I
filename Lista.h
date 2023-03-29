@@ -41,7 +41,7 @@ bool Lista<T>::posicion_valida(int posicion) {
 template <typename T>
 nodo<T>* Lista<T>::encontrar_posicion_anterior(int posicion) {
     // Recorrer la lista para encontrar la posicion 
-    nodo<T> *siguiente = this->cab->sig;
+    nodo<T> *siguiente = this->cab;
     for (int i=0; i<posicion-1; i++) {
         siguiente = siguiente->sig;
     }
@@ -52,7 +52,7 @@ nodo<T>* Lista<T>::encontrar_posicion_anterior(int posicion) {
 
 template <typename T>
 bool Lista<T>::lista_vacia() {
-    if( cab==NULL )
+    if( this->cab==nullptr )
         return true;
     return false;
 }
@@ -61,20 +61,22 @@ template <typename T>
 void Lista<T>::insertar(T dato, int posicion) {
     // Se verifica que no ingrese posiciones negativas
     if( this->posicion_valida(posicion) ) {
-        // Recorrer la lista para encontrar la posicion 
-        nodo<T> *siguiente = this->encontrar_posicion_anterior(posicion);
+        // Recorrer la lista para encontrar la posicion anterior y posterior 
+        nodo<T> *anterior = this->encontrar_posicion_anterior(posicion);
+        nodo<T> *posterior = anterior->sig;
         // Crear un nuevo elemento
         nodo<T> *nuevo;
         nuevo = new nodo<T>;
         nuevo->dato = dato;
         // Al anterior elemento se le asigna el nuevo elemento
-        siguiente = nuevo;
-        // Se avanza una posición en la lista para enlazar el siguiente al nuevo
-        siguiente = siguiente->sig;
-        nuevo->sig = siguiente;
+        anterior->sig = nuevo;
         // Si el siguiente es el ultimo se actualiza el valor del centinela
-        if( siguiente==NULL ) {
+        // De lo contrario se enlaza el nuevo nodo
+        if( posterior==nullptr ) {
             this->cen = nuevo;
+            nuevo->sig = 0;
+        } else {
+            nuevo->sig = posterior;
         }
         // Aumentar el numero de elementos
         this->tam+=1;
@@ -87,13 +89,18 @@ void Lista<T>::insertar_final(T dato) {
     nodo<T> *nuevo;
     nuevo = new nodo<T>;
     nuevo->dato = dato;
-    nuevo->sig = NULL;
+    nuevo->sig = 0;
     // Enlazarlo al centinela
-    cen->sig = nuevo;
+    if( this->cen!=nullptr ){
+        this->cen->sig = nuevo;
+    } else {
+        this->cab = new nodo<T>;
+        this->cab->sig = nuevo;
+    }
     // Actualizar el valor de centinela
-    cen = nuevo;
+    this->cen = nuevo;
     // Aumentar el numero de elementos
-    this->tam+=1;    
+    this->tam+=1;
 }
 
 template <typename T>
@@ -103,8 +110,8 @@ void Lista<T>::insertar_inicio(T dato) {
     nuevo = new nodo<T>;
     nuevo->dato = dato;
     // Enlazar al primer elemento
-    if( *this->cab->sig!=0 ){
-        nuevo->sig = cab->sig;
+    if( this->cab->sig!=nullptr ){
+        nuevo->sig = this->cab->sig;
     } else {
         nuevo->sig = 0;
     }
