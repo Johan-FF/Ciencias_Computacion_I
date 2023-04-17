@@ -139,15 +139,19 @@ public:
         tam--;
     }
 
-    int getTam() {
+    int getTam() const  {
         return tam;
     }
 
     bool lista_vacia() {
         return (tam == 0);
     }
+    
+    Nodo<T>* getInicio(){
+    	return this->inicio;
+	}
 
-    T buscar(int pos) {
+    const T buscar(int pos) const{
         if (pos < 0 || pos >= tam) {
 	        cout<<"Posición invalida"<<endl;
 	    }
