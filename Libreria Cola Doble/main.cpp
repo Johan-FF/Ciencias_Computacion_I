@@ -16,7 +16,5 @@ int main(){
     cout << "Eliminando " << cola.eliminar('D') << endl; // debería imprimir: Eliminando 1
     cout << "Eliminando " << cola.eliminar('I') << endl; // debería imprimir: Eliminando 4
 
-    cola.mostrar(); // debería imprimir: 3 2
-	
 	return 0;
 }
