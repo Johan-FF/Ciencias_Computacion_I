@@ -7,38 +7,34 @@
 using namespace std;
 
 int main(){
-    int para_eliminar[5], posicion=0, i;
-    ArbolBinarioOrdenado arbol(10);
+    int num_elementos=10, num_elementos_eliminar=num_elementos/4; 
+    int para_eliminar[num_elementos_eliminar], posicion=0, i;
+    ArbolBinarioOrdenado arbol(num_elementos);
     srand(time(NULL));
     int num;
-    for(i=0; i<10; i++){
+    for(i=0; i<num_elementos; i++){
         num = rand()%51;
         if( i%4==0 ) para_eliminar[posicion++] = num;
         arbol.insertar(num);
     }
-    cout<<endl;
-    cout<<"inorden: ";
-    arbol.imprimir_inorden(1);
-    cout<<endl;
-    cout<<"preorden: ";
-    arbol.imprimir_preorden(1);
-    cout<<endl;
-    cout<<"posorden: ";
-    arbol.imprimir_posorden(1);
+    cout<<"Iniciando:"<<endl;
+    for(int i=0; i<11; i++){
+        cout<<arbol.arbol[i].clave<<",";
+        cout<<arbol.arbol[i].izq<<",";
+        cout<<arbol.arbol[i].der<<"  ";
+    }
     cout<<endl;
 
-    for(i=0; i<5; i++)
+    for(i=0; i<3; i++){
         arbol.eliminar( para_eliminar[i] );
-
-    cout<<endl;
-    cout<<"inorden: ";
-    arbol.imprimir_inorden(1);
-    cout<<endl;
-    cout<<"preorden: ";
-    arbol.imprimir_preorden(1);
-    cout<<endl;
-    cout<<"posorden: ";
-    arbol.imprimir_posorden(1);
+        cout<<"Eliminando: "<<para_eliminar[i]<<endl;
+    }
+    cout<<"Luego de eliminar:"<<endl;
+    for(int i=0; i<11; i++){
+        cout<<arbol.arbol[i].clave<<",";
+        cout<<arbol.arbol[i].izq<<",";
+        cout<<arbol.arbol[i].der<<"  ";
+    }
     cout<<endl;
 
     return 0;
