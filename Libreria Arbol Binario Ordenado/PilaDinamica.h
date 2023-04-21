@@ -5,20 +5,20 @@
 template <typename T>
 class Pila {
     private:
-        struct nodoPila {
+        struct nodo {
             T clave;
-            struct nodoPila *siguiente;
+            struct nodo *siguiente;
         };
-        struct nodoPila *cabeza, *z;
+        struct nodo *cabeza, *z;
     public:
-        Pila(int max) {
-            cabeza = new nodoPila;
-            z = new nodoPila;
+        Pila() {
+            cabeza = new nodo;
+            z = new nodo;
             cabeza->siguiente = z;
             z->siguiente = z;
         }
         ~Pila() {
-            struct nodoPila *t = cabeza;
+            struct nodo *t = cabeza;
             while (t != z) {
                 cabeza = t;
                 t = t->siguiente;
@@ -26,24 +26,38 @@ class Pila {
             }
         }
         void meter(T V) {
-            struct nodoPila *t = new nodoPila;
+            struct nodo *t = new nodo;
             t->clave = V;
             t->siguiente = cabeza->siguiente;
             cabeza->siguiente = t;
         }
         T sacar() {
             T x;
-            struct nodoPila *t = cabeza->siguiente;
+            struct nodo *t = cabeza->siguiente;
             cabeza->siguiente = t->siguiente;
             x = t->clave;
             delete t;
             return x;
         }
-        int vacia() {
-            return cabeza->siguiente == z;
+		void mostrarPila() {
+		    struct nodo *t = cabeza->siguiente;
+		    while (t != z) {
+		        std::cout << t->clave << " ";
+		        t = t->siguiente;
+		    }
+		    std::cout << std::endl;
+		}
+        bool vacia() {
+            if (cabeza->siguiente == z) {
+                return true;
+            } else {
+                return false;
+            }
         }
         
-        
+        T getCabeza(){
+            return cabeza->clave;            
+        }
 };
 
 #endif
