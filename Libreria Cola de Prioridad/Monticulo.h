@@ -13,7 +13,6 @@ class monticulo{
 		int atender();
 		void imprimirArreglo();
 		bool monticulo_lleno();
-
 };
 
 monticulo::monticulo(int t) {
@@ -44,10 +43,31 @@ bool monticulo::insertar(int valor) {
 	return true;
 }
 
+int monticulo::atender() {
+	int pen=Arr[PosAct--];
+	int atendido=Arr[1], pos=1;
+
+	do {
+		if( pen>Arr[pos*2] && pen>Arr[pos*2+1] ){
+			Arr[pos]=pen;
+			break;
+		} else if( Arr[pos*2]>pen && Arr[pos*2]>Arr[pos*2+1] ){
+			Arr[pos] = Arr[pos*2];
+			pos = pos*2;
+		} else if( Arr[pos*2+1]>pen && Arr[pos*2+1]>Arr[pos*2] ){
+			Arr[pos] = Arr[pos*2+1];
+			pos = pos*2+1;
+		}
+		if( pos*2+1>PosAct ) break;
+	} while ( pos<PosAct );
+	Arr[pos]=pen;
+
+	return atendido;
+}
+
 void monticulo::imprimirArreglo() {
     for (int i = 1; i <= PosAct; i++) {
         cout << Arr[i] << " ";
     }
     cout << endl;
 }
-
