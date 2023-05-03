@@ -13,6 +13,7 @@ class monticulo{
 		int atender();
 		void imprimirArreglo();
 		bool monticulo_lleno();
+		bool monticulo_vacio();
 };
 
 monticulo::monticulo(int t) {
@@ -23,6 +24,10 @@ monticulo::monticulo(int t) {
 
 bool monticulo::monticulo_lleno() {
     return PosAct == tam;
+}
+
+bool monticulo::monticulo_lleno() {
+    return PosAct == 0;
 }
 
 bool monticulo::insertar(int valor) {
