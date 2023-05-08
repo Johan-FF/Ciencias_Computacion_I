@@ -1,4 +1,3 @@
-
 #ifndef ARBOLROJINEGRO_H
 #define ARBOLROJINEGRO_H
 
@@ -13,12 +12,12 @@ using namespace std;
 struct Nodo {
     int valor;
     bool color;
-    Nodo *subarbolIzquierdo, *subarbolDerecho, *padre;
+    Nodo *subArbolIzquierdo, *subArbolDerecho, *padre;
 
     // Constructor por defecto
-    Nodo() : valor(0), color(RED), subarbolIzquierdo(nullptr), subarbolDerecho(nullptr), padre(nullptr) { } 
+    Nodo() : valor(0), color(RED), subArbolIzquierdo(nullptr), subArbolDerecho(nullptr), padre(nullptr) { } 
 
-    // Método que devuelve el abuelo del nodo
+    // Mï¿½todo que devuelve el abuelo del nodo
     Nodo* abuelo() {
         if(padre == nullptr){
             return nullptr;
@@ -26,42 +25,40 @@ struct Nodo {
         return padre->padre;
     }
 
-    // Método que devuelve el tío del nodo
+    // Mï¿½todo que devuelve el tï¿½o del nodo
     Nodo* tio() {
         if(abuelo() == nullptr) {
             return nullptr;
         }
-        if(padre == abuelo()->subarbolDerecho)
-            return abuelo()->subarbolIzquierdo;
+        if(padre == abuelo()->subArbolDerecho)
+            return abuelo()->subArbolIzquierdo;
         else
-            return abuelo()->subarbolDerecho;
+            return abuelo()->subArbolDerecho;
     }
 
-    // Método que devuelve el hermano del nodo
+    // Mï¿½todo que devuelve el hermano del nodo
     Nodo* hermano() {
-        if(padre->subarbolIzquierdo == this)
-            return padre->subarbolDerecho;
+        if(padre->subArbolIzquierdo == this)
+            return padre->subArbolDerecho;
         else
-            return padre->subarbolIzquierdo;
+            return padre->subArbolIzquierdo;
     }
- };
- 
- 
+};
+
+
 class ArbolRojoNegro {
 private:
-	
 	Nodo *raiz, *NIL;    
 
 public:
-	
-    // Constructor del árbol binario de búsqueda
+    // Constructor del ï¿½rbol binario de bï¿½squeda
     ArbolRojoNegro() {
         NIL = new Nodo();
         NIL->color = BLACK;
         raiz = nullptr;
     }
 
-    // Destructor del árbol binario de búsqueda
+    // Destructor del ï¿½rbol binario de bï¿½squeda
     ~ArbolRojoNegro() {
         destruir(raiz);
         delete NIL;
@@ -69,43 +66,42 @@ public:
 
 	void destruir(Nodo *p) {
 	    if (p != nullptr && p != NIL) {
-	        destruir(p->subarbolIzquierdo);
-	        destruir(p->subarbolDerecho);
-	        p->subarbolIzquierdo = nullptr;
-	        p->subarbolDerecho = nullptr;
+	        destruir(p->subArbolIzquierdo);
+	        destruir(p->subArbolDerecho);
+	        p->subArbolIzquierdo = nullptr;
+	        p->subArbolDerecho = nullptr;
 	        if (p->padre != nullptr) {
-	            if (p->padre->subarbolIzquierdo == p) {
-	                p->padre->subarbolIzquierdo = nullptr;
+	            if (p->padre->subArbolIzquierdo == p) {
+	                p->padre->subArbolIzquierdo = nullptr;
 	            } else {
-	                p->padre->subarbolDerecho = nullptr;
+	                p->padre->subArbolDerecho = nullptr;
 	            }
 	        }
 	        delete p;
 	    }
 	}
 
-	
-	// Método para recorrido inorden del árbol
+	// Mï¿½todo para recorrido inorden del ï¿½rbol
 	void inorder() {
 	    if(raiz == nullptr)
 	        return;
 	    inorder (raiz);
 	    cout << endl;
 	}
-	
-	    // Realiza una rotación a la derecha en el nodo p
+
+	    // Realiza una rotaciï¿½n a la derecha en el nodo p
 	void rotar_derecha(Nodo *p){
 	    // Obtiene el abuelo, padre e hijo derecho del nodo p
 	    Nodo *gp = p->abuelo();
 	    Nodo *fa = p->padre;
-	    Nodo *y = p->subarbolIzquierdo;
+	    Nodo *y = p->subArbolIzquierdo;
 	 
-	    // Realiza la rotación a la derecha
-	    fa->subarbolDerecho = y;
+	    // Realiza la rotaciï¿½n a la derecha
+	    fa->subArbolDerecho = y;
 	    if(y != NIL)
 	        y->padre = fa;
 	 
-	    p->subarbolIzquierdo = fa;
+	    p->subArbolIzquierdo = fa;
 	    fa->padre = p;
 	 
 	    if(raiz == fa)
@@ -113,16 +109,16 @@ public:
 	 
 	    p->padre = gp;
 	    if(gp != nullptr){
-	        if(gp->subarbolDerecho == fa)
-	            gp->subarbolDerecho = p;
+	        if(gp->subArbolDerecho == fa)
+	            gp->subArbolDerecho = p;
 	        else
-	            gp->subarbolIzquierdo = p;
+	            gp->subArbolIzquierdo = p;
 	    }
 	}
- 
-	// Realiza una rotación a la izquierda en el nodo p
+
+	// Realiza una rotaciï¿½n a la izquierda en el nodo p
 	void rotar_izquierda(Nodo *p){
-	    // Si el padre es nulo, el nodo p es la raíz
+	    // Si el padre es nulo, el nodo p es la raï¿½z
 	    if(p->padre == nullptr){
 	        raiz = p;
 	        return;
@@ -131,14 +127,14 @@ public:
 	    // Obtiene el abuelo, padre e hijo izquierdo del nodo p
 	    Nodo *gp = p->abuelo();
 	    Nodo *fa = p->padre;
-	    Nodo *y = p->subarbolDerecho;
-	 
-	    // Realiza la rotación a la izquierda
-	    fa->subarbolIzquierdo = y;
+	    Nodo *y = p->subArbolDerecho;
+	
+	    // Realiza la rotaciï¿½n a la izquierda
+	    fa->subArbolIzquierdo = y;
 	    if(y != NIL)
 	        y->padre = fa;
 	 
-	    p->subarbolDerecho = fa;
+	    p->subArbolDerecho = fa;
 	    fa->padre = p;
 	 
 	    if(raiz == fa)
@@ -146,35 +142,35 @@ public:
 	    p->padre = gp;
 	    
 	    if(gp != NULL){
-	        if(gp->subarbolDerecho == fa)
-	            gp->subarbolDerecho = p;
+	        if(gp->subArbolDerecho == fa)
+	            gp->subArbolDerecho = p;
 	        else
-	            gp->subarbolIzquierdo = p;
+	            gp->subArbolIzquierdo = p;
 	    }
 	}
 	
-		// Método para insertar un nuevo nodo al árbol rojo-negro
+		// Mï¿½todo para insertar un nuevo nodo al ï¿½rbol rojo-negro
 	void insertar(int x) {
-	    // Si el árbol está vacío, se crea el nodo raíz
+	    // Si el ï¿½rbol estï¿½ vacï¿½o, se crea el nodo raï¿½z
 	    if (raiz == nullptr) {
 	        raiz = new Nodo();
 	        raiz->valor = x;
 	        raiz->color = BLACK; // El primer nodo siempre es negro
 	        raiz->padre = NIL;
-	        raiz->subarbolIzquierdo = NIL;
-	        raiz->subarbolDerecho = NIL;
+	        raiz->subArbolIzquierdo = NIL;
+	        raiz->subArbolDerecho = NIL;
 	        return;
 	    }
 	
-	    // Se busca la posición adecuada para el nuevo nodo
+	    // Se busca la posiciï¿½n adecuada para el nuevo nodo
 	    Nodo *p = raiz;
 	    Nodo *q = NIL; // Nodo padre del nodo actual "p"
 	    while (p != NIL) {
 	        q = p;
 	        if (x < p->valor)
-	            p = p->subarbolIzquierdo;
+	            p = p->subArbolIzquierdo;
 	        else
-	            p = p->subarbolDerecho;
+	            p = p->subArbolDerecho;
 	    }
 	
 	    // Se crea el nuevo nodo y se establecen sus propiedades
@@ -182,86 +178,83 @@ public:
 	    nuevo->valor = x;
 	    nuevo->color = RED;
 	    nuevo->padre = q;
-	    nuevo->subarbolIzquierdo = NIL;
-	    nuevo->subarbolDerecho = NIL;
+	    nuevo->subArbolIzquierdo = NIL;
+	    nuevo->subArbolDerecho = NIL;
 	
 	    // Se inserta el nuevo nodo como hijo del nodo padre q
 	    if (x < q->valor)
-	        q->subarbolIzquierdo = nuevo;
+	        q->subArbolIzquierdo = nuevo;
 	    else
-	        q->subarbolDerecho = nuevo;
+	        q->subArbolDerecho = nuevo;
 	
-	    // Se corrige el árbol para mantener las propiedades del árbol rojo-negro
+	    // Se corrige el ï¿½rbol para mantener las propiedades del ï¿½rbol rojo-negro
 	    insertarCorregir(nuevo);
 	}
-    
+
 	void insertarCorregir(Nodo *n) {
 	    // Si el padre del nodo actual es negro, no hay violaciones de las propiedades
 	    while (n->padre->color == RED) {
 	        // Si el padre es hijo izquierdo del abuelo
-	        if (n->padre == n->padre->padre->subarbolIzquierdo) {
-	            Nodo *y = n->padre->padre->subarbolDerecho; // Tío del nodo actual
-	            // Caso 1: el tío es rojo
+	        if (n->padre == n->padre->padre->subArbolIzquierdo) {
+	            Nodo *y = n->padre->padre->subArbolDerecho; // Tï¿½o del nodo actual
+	            // Caso 1: el tï¿½o es rojo
 	            if (y->color == RED) {
 	                n->padre->color = BLACK;
 	                y->color = BLACK;
 	                n->padre->padre->color = RED;
 	                n = n->padre->padre;
 	            } else {
-	                // Caso 2: el tío es negro y el nodo actual es hijo derecho
-	                if (n == n->padre->subarbolDerecho) {
+	                // Caso 2: el tï¿½o es negro y el nodo actual es hijo derecho
+	                if (n == n->padre->subArbolDerecho) {
 	                    n = n->padre;
 	                    rotar_izquierda(n);
 	                }
-	                // Caso 3: el tío es negro y el nodo actual es hijo izquierdo
+	                // Caso 3: el tï¿½o es negro y el nodo actual es hijo izquierdo
 	                n->padre->color = BLACK;
 	                n->padre->padre->color = RED;
 	                rotar_derecha(n->padre->padre);
 	            }
 	        } else { // El padre es hijo derecho del abuelo
-	            Nodo *y = n->padre->padre->subarbolIzquierdo; // Tío del nodo actual
-	            // Caso 1: el tío es rojo
+	            Nodo *y = n->padre->padre->subArbolIzquierdo; // Tï¿½o del nodo actual
+	            // Caso 1: el tï¿½o es rojo
 	            if (y->color == RED) {
 	                n->padre->color = BLACK;
 	                y->color = BLACK;
 	                n->padre->padre->color = RED;
 	                n = n->padre->padre;
 	            } else {
-	                // Caso 2: el tío es negro y el nodo actual es hijo izquierdo
-	                if (n == n->padre->subarbolIzquierdo) {
+	                // Caso 2: el tï¿½o es negro y el nodo actual es hijo izquierdo
+	                if (n == n->padre->subArbolIzquierdo) {
 	                    n = n->padre;
 	                    rotar_derecha(n);
 	                }
-	                // Caso 3: el tío es negro y el nodo actual es hijo derecho
+	                // Caso 3: el tï¿½o es negro y el nodo actual es hijo derecho
 	                n->padre->color = BLACK;
 	                n->padre->padre->color = RED;
 	                rotar_izquierda(n->padre->padre);
 	            }
 	        }
 	    }
-	    // La raíz debe ser negra
+	    // La raï¿½z debe ser negra
 	    raiz->color = BLACK;
 	}
 
     void inorder(Nodo *p){
         if(p == NIL)
             return;
- 
-        if(p->subarbolDerecho)
-            inorder(p->subarbolIzquierdo);
- 
+
+        if(p->subArbolDerecho)
+            inorder(p->subArbolIzquierdo);
+
         cout << p->valor << " ";
                 
-        if(p->subarbolIzquierdo)
-            inorder(p->subarbolDerecho);
+        if(p->subArbolIzquierdo)
+            inorder(p->subArbolDerecho);
     }
-	
+
 	Nodo* get_raiz() {
         return raiz;
     }  
 };
 
 #endif
-
-
-
