@@ -9,5 +9,7 @@ int main() {
 	arbol.insertar(4);
 	arbol.insertar(6);
 	arbol.inorder(arbol.get_raiz());
+	if(arbol.eliminar_valor(2))
+		arbol.inorder(arbol.get_raiz());
 	return 0;
 }
