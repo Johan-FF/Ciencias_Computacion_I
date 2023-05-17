@@ -1,635 +1,281 @@
 #ifndef ARBOLB_H
 #define ARBOLB_H
 
-#include <cstdlib>
+#include <iostream>
+#include <queue>
+using namespace std;
 
-struct nodo
-{
+struct nodo {
     int *claves;
     nodo **hijos;
     int Nclaves;
     bool hoja;
 };
 
-class arbolB
-{
+class arbolB {
     nodo *raiz;
     int d;
 
 public:
-    arbolB(int ord)
-    {
+    arbolB(int ord) {
         d = ord;
         raiz = crear_nodo();
         raiz->Nclaves = 0;
         raiz->hoja = true;
     }
-    void mostrar();
-    void inorden(nodo* actual);
     nodo *crear_nodo();
+    nodo *get_raiz();
     int dividir_nodo(nodo *actual, nodo **hermano);
     void insertar(int clave);
-    bool buscar(int clave);
-    nodo *buscar_nodo(int clave, nodo **Actual);
+    nodo *buscar_nodo(int clave, nodo *Actual, nodo **padre);
     int InsertarNodoNormal(int clave, nodo *Actual);
     void InsertarNodoLleno(int clave, nodo *Actual, nodo *padre);
+    nodo *buscar_padre(int clave, nodo *Actual, nodo *padre);
     bool borrar(int clave);
-    int buscar_clave(int clave, nodo **actual, nodo **padre);
-    int borrarEn_hoja(int clave, int pos, nodo *actual, nodo *padre);
-    void ajustar_nodo(int pos, nodo *actual);
-    int buscar_lugarEntreHnos(int clave, nodo *padre);
-    bool ayuda_hnoDer(nodo *padre, int posActual);
-    bool ayuda_hnoIzq(nodo *padre, int posActual);
-    void juntar(nodo *padre, int pos, int posActual);
-    void reemplazar_der(nodo *actual, nodo *padre, int posActual);
-    void reemplazar_izq(nodo *actual, nodo *padre, int posActual);
-    void unir_hno_der(nodo *padre, int posClave, int posActual);
-    void unir_hno_izq(nodo *padre, int posClave, int posActual);
-    int encontrar_predecesor(nodo *actual);
-    nodo* encontrar_padre(nodo *nodo_actual, nodo *nodo_buscado);
-    int encontrar_sucesor(nodo *actual);
-    void ajustarNivelPadre(nodo *actual, int posClave);
-    int borrarEn_Ninterno(int pos, nodo *actual);
+    nodo *Unir_nodos(nodo *hizq, nodo *hDer, nodo *padre);
+    void rotacion_derecha(int i, nodo *actual, nodo *hermano_izq, nodo *hijo);
+    void rotacion_izquierda(int i, nodo *actual, nodo *hermano_der, nodo *hijo);
+    void fusionar_nodos(int i, nodo *actual, nodo *hermano, nodo *hijo);
+    void imprimirArbol();
 };
 
-void arbolB::mostrar() {
-    inorden(raiz);
+nodo *arbolB::crear_nodo() {
+    nodo *nuevo = new nodo;
+    nuevo->claves = new int[2 * d - 1];
+    nuevo->hijos = new nodo *[2 * d];
+    nuevo->Nclaves = 0;
+    nuevo->hoja = true;
+    return nuevo;
 }
 
-void arbolB::inorden(nodo* actual) {
-    if (actual != nullptr) {
-        int i;
-        for (i = 0; i < actual->Nclaves; i++) {
-            if (!actual->hoja)
-                inorden(actual->hijos[i]);
-            std::cout << actual->claves[i] << " ";
-        }
-
-        if (!actual->hoja)
-            inorden(actual->hijos[i]);
-    }
+nodo *arbolB::get_raiz() {
+    return raiz;
 }
 
-nodo *arbolB::crear_nodo()
-{
-    nodo *nuevo_nodo = new nodo;
-    nuevo_nodo->claves = new int[2 * d];
-    nuevo_nodo->hijos = new nodo *[2 * d + 1];
-    nuevo_nodo->Nclaves = 0;
-    nuevo_nodo->hoja = true;
-    return nuevo_nodo;
-}
-
-int arbolB::dividir_nodo(nodo *actual, nodo **hermano)
-{
-    int medio = actual->Nclaves / 2;
-    *hermano = crear_nodo();
-
-    (*hermano)->hoja = actual->hoja;
-    (*hermano)->Nclaves = actual->Nclaves - medio - 1;
-
-    for (int i = 0; i < medio + 1; i++)
-        (*hermano)->hijos[i] = actual->hijos[i + medio + 1];
-
-    if (!actual->hoja)
-    {
-        for (int i = 0; i < medio; i++)
-            (*hermano)->claves[i] = actual->claves[i + medio + 1];
-    }
+void arbolB::insertar(int clave) {
+    nodo *padre = NULL, *Actual = raiz;
+    Actual = buscar_nodo(clave, Actual, &padre);
+    if (Actual->Nclaves < 2 * d - 1)
+        InsertarNodoNormal(clave, Actual);
     else
-    {
-        for (int i = 0; i < medio; i++)
-            (*hermano)->claves[i] = actual->claves[i + medio];
-    }
-
-    actual->Nclaves = medio;
-
-    return actual->claves[medio];
+        InsertarNodoLleno(clave, Actual, padre);
 }
 
-void arbolB::insertar(int clave)
-{
-    nodo *nodo_actual = raiz;
-    if (nodo_actual->Nclaves == 2 * d - 1)
-    {
-        nodo *nuevo_nodo = crear_nodo();
-        nuevo_nodo->hijos[0] = raiz;
-        raiz = nuevo_nodo;
-
-        dividir_nodo(nodo_actual, &nuevo_nodo);
-        InsertarNodoNormal(clave, nuevo_nodo);
-    }
-    else
-    {
-        InsertarNodoNormal(clave, nodo_actual);
-    }
-}
-
-bool arbolB::buscar(int clave){
-    return buscar_nodo(clave, &raiz)==nullptr;
-}
-
-nodo *arbolB::buscar_nodo(int clave, nodo **actual)
-{
+nodo *arbolB::buscar_nodo(int clave, nodo *Actual, nodo **padre) {
     int i = 0;
-    while (i < (*actual)->Nclaves && clave > (*actual)->claves[i])
+    while ((i < Actual->Nclaves) && clave > Actual->claves[i])
         i++;
-    if ((*actual)->hoja && (*actual)->claves[i] == clave)
-        return *actual;
-
-    if ((*actual)->hoja)
-        return NULL;
-
-    return buscar_nodo(clave, &((*actual)->hijos[i]));
+    if (Actual->hoja) {
+        if (Actual == raiz)
+            *padre = NULL;
+        return Actual;
+    } else {
+        *padre = Actual;
+        Actual = Actual->hijos[i];
+        return buscar_nodo(clave, Actual, padre);
+    }
 }
 
-int arbolB::InsertarNodoNormal(int clave, nodo *actual)
-{
-    int i = actual->Nclaves - 1;
-    if (actual->hoja)
-    {
-        while (i >= 0 && clave < actual->claves[i])
-        {
-            actual->claves[i + 1] = actual->claves[i];
-            i--;
-        }
-
-        actual->claves[i + 1] = clave;
-        actual->Nclaves++;
-        return 0;
-    }
-
-    while (i >= 0 && clave < actual->claves[i])
+int arbolB::InsertarNodoNormal(int clave, nodo *Actual) {
+    int i, j;
+    i = Actual->Nclaves;
+    while ((i - 1) >= 0 && clave < Actual->claves[i - 1]) {
+        Actual->claves[i] = Actual->claves[i - 1];
+        if (!Actual->hoja) // si el nodo no es una hoja
+            Actual->hijos[i + 1] = Actual->hijos[i];
         i--;
+    }
+    Actual->claves[i] = clave;
+    (Actual->Nclaves)++;
+    return i;
+}
 
-    i++;
+void arbolB::InsertarNodoLleno(int clave, nodo *Actual, nodo *padre) {
+    int pos, sube;
+    nodo *nuevo, *nivelad = NULL;
+    sube = dividir_nodo(Actual, &nuevo);
+    if (clave < sube) {
+        Actual->claves[d - 1] = clave;
+        (Actual->Nclaves)++;
+    } else {
+        nuevo->claves[d - 1] = clave;
+        (nuevo->Nclaves)++;
+    }
+    if (Actual != raiz && padre->Nclaves < 2 * d - 1) {
+        pos = InsertarNodoNormal(sube, padre);
+        padre->hijos[pos] = Actual;
+        padre->hijos[pos + 1] = nuevo;
+    } else {
+        if (Actual == raiz) {
+            nivelad = crear_nodo();
+            nivelad->hoja = false;
+            nivelad->Nclaves = 1;
+            nivelad->hijos[0] = Actual;
+            nivelad->hijos[1] = nuevo;
+        } else {
+            nivelad = buscar_padre(padre->claves[0], padre, nivelad);
+            InsertarNodoLleno(padre->claves[d - 1], padre, nivelad);
+        }
+    }
+}
 
-    if (actual->hijos[i]->Nclaves == 2 * d - 1)
-    {
-        nodo *nuevo_nodo = crear_nodo();
-        dividir_nodo(actual->hijos[i], &nuevo_nodo);
+int arbolB::dividir_nodo(nodo *actual, nodo **hermano) {
+    int i;
+    nodo *nuevo = crear_nodo();
+    nuevo->hoja = actual->hoja;
+    for (i = 0; i < d - 1; i++)
+        nuevo->claves[i] = actual->claves[i + d];
+    if (!actual->hoja) {
+        for (i = 0; i < d; i++)
+            nuevo->hijos[i] = actual->hijos[i + d];
+    }
+    nuevo->Nclaves = actual->Nclaves = d - 1;
+    return actual->claves[d - 1];
+}
 
-        if (clave > actual->claves[i])
+nodo *arbolB::buscar_padre(int clave, nodo *Actual, nodo *padre) {
+    int i = 0;
+    if (clave == Actual->claves[0])
+        return padre;
+    else {
+        while (i < Actual->Nclaves && clave > Actual->claves[i])
             i++;
-
-        InsertarNodoNormal(clave, nuevo_nodo);
-    }
-    else
-    {
-        InsertarNodoNormal(clave, actual->hijos[i]);
-    }
-
-    return 0;
-}
-
-void arbolB::InsertarNodoLleno(int clave, nodo *actual, nodo *padre)
-{
-    if (actual == raiz)
-    {
-        nodo *nuevo_nodo = crear_nodo();
-        raiz = nuevo_nodo;
-        nuevo_nodo->hijos[0] = actual;
-        dividir_nodo(actual, &(nuevo_nodo->hijos[1]));
-        InsertarNodoNormal(clave, nuevo_nodo);
-    }
-    else
-    {
-        nodo *nuevo_nodo = crear_nodo();
-        dividir_nodo(actual, &nuevo_nodo);
-        int pos = buscar_lugarEntreHnos(clave, padre);
-
-        if (pos == padre->Nclaves)
-            padre->hijos[pos + 1] = nuevo_nodo;
-        else
-            reemplazar_der(nuevo_nodo, padre, pos);
-        InsertarNodoNormal(clave, padre->hijos[pos]);
+        padre = Actual;
+        Actual = Actual->hijos[i];
+        return buscar_padre(clave, Actual, padre);
     }
 }
 
-bool arbolB::borrar(int clave)
-{
-    nodo *actual = raiz;
+bool arbolB::borrar(int clave) {
+    if (!raiz) {
+        cout << "El arbol esta vacio." << endl;
+        return false;
+    }
     nodo *padre = NULL;
-    int posActual = -1;
-    while (true)
-    {
-        posActual = buscar_clave(clave, &actual, &padre);
-
-        if (posActual != -1)
-            break;
-
+    nodo *actual = buscar_nodo(clave, raiz, &padre);
+    int i = 0;
+    while (i < actual->Nclaves && clave > actual->claves[i])
+        i++;
+    if (i < actual->Nclaves && clave == actual->claves[i]) {
+        if (actual->hoja) {
+            for (int j = i; j < actual->Nclaves - 1; j++)
+                actual->claves[j] = actual->claves[j + 1];
+            (actual->Nclaves)--;
+            if (actual == raiz && actual->Nclaves == 0) {
+                delete[] actual->claves;
+                delete[] actual->hijos;
+                delete actual;
+                raiz = NULL;
+            }
+        } else {
+            nodo *predecesor = actual->hijos[i];
+            while (!predecesor->hoja)
+                predecesor = predecesor->hijos[predecesor->Nclaves];
+            int pred = predecesor->claves[predecesor->Nclaves - 1];
+            actual->claves[i] = pred;
+            return borrar(pred);
+        }
+        return true;
+    } else {
         if (actual->hoja)
             return false;
+        nodo *hijo_izq = NULL, *hijo_der = NULL;
+        if (i > 0)
+            hijo_izq = padre->hijos[i - 1];
+        if (i < padre->Nclaves)
+            hijo_der = padre->hijos[i + 1];
+        if (hijo_izq && hijo_izq->Nclaves > d - 1) {
+            rotacion_derecha(i - 1, actual, hijo_izq, hijo_izq->hijos[hijo_izq->Nclaves]);
+        } else if (hijo_der && hijo_der->Nclaves > d - 1) {
+            rotacion_izquierda(i, actual, hijo_der, hijo_der->hijos[0]);
+        } else if (hijo_izq) {
+            fusionar_nodos(i - 1, actual, hijo_izq, hijo_izq->hijos[hijo_izq->Nclaves]);
+            actual = hijo_izq;
+        } else if (hijo_der) {
+            fusionar_nodos(i, actual, hijo_der, hijo_der->hijos[0]);
+        }
+        return borrar(clave);
+    }
+}
 
-        if (actual->Nclaves >= d)
-            actual = actual->hijos[posActual];
-        else
-        {
-            if (ayuda_hnoDer(padre, posActual))
-                ajustar_nodo(posActual, actual);
-            else if (ayuda_hnoIzq(padre, posActual))
-                ajustar_nodo(posActual - 1, actual);
-            else
-            {
-                if (posActual < padre->Nclaves)
-                    juntar(padre, posActual, posActual + 1);
-                else
-                    juntar(padre, posActual - 1, posActual);
+void arbolB::rotacion_derecha(int i, nodo *actual, nodo *hermano_izq, nodo *hijo) {
+    for (int j = actual->Nclaves; j > 0; j--)
+        actual->claves[j] = actual->claves[j - 1];
+    actual->claves[0] = hermano_izq->claves[hermano_izq->Nclaves - 1];
+    if (!actual->hoja) {
+        for (int j = actual->Nclaves + 1; j > 0; j--)
+            actual->hijos[j] = actual->hijos[j - 1];
+        actual->hijos[0] = hijo;
+    }
+    (actual->Nclaves)++;
+    hermano_izq->Nclaves--;
+    hermano_izq->claves[hermano_izq->Nclaves] = 0;
+    if (!actual->hoja)
+        hermano_izq->hijos[hermano_izq->Nclaves + 1] = NULL;
+}
+
+void arbolB::rotacion_izquierda(int i, nodo *actual, nodo *hermano_der, nodo *hijo) {
+    actual->claves[actual->Nclaves] = hermano_der->claves[0];
+    if (!actual->hoja)
+        actual->hijos[actual->Nclaves + 1] = hijo;
+    (actual->Nclaves)++;
+    for (int j = 0; j < hermano_der->Nclaves - 1; j++)
+        hermano_der->claves[j] = hermano_der->claves[j + 1];
+    if (!actual->hoja) {
+        for (int j = 0; j < hermano_der->Nclaves; j++)
+            hermano_der->hijos[j] = hermano_der->hijos[j + 1];
+        hermano_der->hijos[hermano_der->Nclaves] = NULL;
+    }
+    hermano_der->Nclaves--;
+    hermano_der->claves[hermano_der->Nclaves] = 0;
+}
+
+void arbolB::fusionar_nodos(int i, nodo *actual, nodo *hermano, nodo *hijo) {
+    hermano->claves[hermano->Nclaves] = actual->claves[i];
+    for (int j = 0; j < hijo->Nclaves; j++)
+        hermano->claves[hermano->Nclaves + 1 + j] = hijo->claves[j];
+    if (!actual->hoja) {
+        for (int j = 0; j <= hijo->Nclaves; j++)
+            hermano->hijos[hermano->Nclaves + 1 + j] = hijo->hijos[j];
+    }
+    hermano->Nclaves += hijo->Nclaves + 1;
+    for (int j = i; j < actual->Nclaves - 1; j++)
+        actual->claves[j] = actual->claves[j + 1];
+    if (!actual->hoja) {
+        for (int j = i + 1; j < actual->Nclaves; j++)
+            actual->hijos[j] = actual->hijos[j + 1];
+    }
+    actual->Nclaves--;
+    actual->claves[actual->Nclaves] = 0;
+    if (!actual->hoja)
+        actual->hijos[actual->Nclaves + 1] = NULL;
+}
+
+void arbolB::imprimirArbol() {
+    if (!raiz) {
+        std::cout << "El ·rbol est· vacÌo." << std::endl;
+        return;
+    }
+
+    std::queue<nodo*> cola;
+    cola.push(raiz);
+
+    while (!cola.empty()) {
+        int nivelSize = cola.size();
+        for (int i = 0; i < nivelSize; i++) {
+            nodo* temp = cola.front();
+            cola.pop();
+            for (int j = 0; j < temp->Nclaves; j++) {
+                std::cout << temp->claves[j] << " ";
+                if (!temp->hoja)
+                    cola.push(temp->hijos[j]);
             }
+            if (!temp->hoja)
+                cola.push(temp->hijos[temp->Nclaves]);
         }
+        std::cout << std::endl;
     }
-    if (actual->hoja)
-    {
-        borrarEn_hoja(clave, posActual, actual, padre);
-    }
-    else
-    {
-        int posSigClave = posActual + 1;
-        nodo *nodo_sig_clave = actual->hijos[posSigClave];
-
-        while (!nodo_sig_clave->hoja)
-        {
-            padre = actual;
-            actual = nodo_sig_clave;
-            posSigClave = 0;
-            nodo_sig_clave = actual->hijos[posSigClave];
-        }
-
-        actual->claves[posActual] = nodo_sig_clave->claves[0];
-        borrarEn_hoja(actual->claves[posActual], posSigClave, actual, padre);
-    }
-
-    return true;
-}
-
-int arbolB::buscar_clave(int clave, nodo **actual, nodo **padre)
-{
-    int posActual = -1;
-    int i = 0;
-    while (i < (*actual)->Nclaves && clave > (*actual)->claves[i])
-    {
-        i++;
-    }
-
-    if ((*actual)->hoja && (*actual)->claves[i] == clave)
-    {
-        return i;
-    }
-
-    if ((*actual)->hoja)
-    {
-        return -1;
-    }
-
-    *padre = *actual;
-    *actual = (*actual)->hijos[i];
-
-    return posActual;
-}
-
-int arbolB::borrarEn_hoja(int clave, int pos, nodo *actual, nodo *padre)
-{
-    for (int i = pos; i < actual->Nclaves - 1; i++)
-    {
-        actual->claves[i] = actual->claves[i + 1];
-    }
-    actual->Nclaves--;
-
-    if (actual == raiz && actual->Nclaves == 0)
-    {
-        delete actual;
-        raiz = NULL;
-    }
-
-    if (actual->Nclaves < d - 1 && actual != raiz)
-    {
-        if (ayuda_hnoDer(padre, pos))
-            ajustar_nodo(pos, actual);
-        else if (ayuda_hnoIzq(padre, pos))
-            ajustar_nodo(pos - 1, actual);
-        else
-        {
-            if (pos < padre->Nclaves)
-                juntar(padre, pos, pos + 1);
-            else
-                juntar(padre, pos - 1, pos);
-        }
-    }
-
-    return 0;
-}
-
-void arbolB::ajustar_nodo(int pos, nodo *actual)
-{
-    if (pos >= 0 && actual->hijos[pos + 1]->Nclaves > d - 1)
-    {
-        reemplazar_der(actual->hijos[pos + 1], actual, pos);
-    }
-    else if (pos >= 0 && actual->hijos[pos - 1]->Nclaves > d - 1)
-    {
-        reemplazar_izq(actual->hijos[pos - 1], actual, pos);
-    }
-    else if (pos >= 0)
-    {
-        unir_hno_der
-
-            (actual, pos, pos + 1);
-    }
-    else
-    {
-        unir_hno_izq(actual, pos, pos + 1);
-    }
-}
-
-int arbolB::buscar_lugarEntreHnos(int clave, nodo *padre)
-{
-    int pos = 0;
-    while (pos < padre->Nclaves && clave > padre->claves[pos])
-    {
-        pos++;
-    }
-
-    return pos;
-}
-
-bool arbolB::ayuda_hnoDer(nodo *padre, int posActual)
-{
-    return (posActual + 1 < padre->Nclaves &&
-            padre->hijos[posActual + 1]->Nclaves > d - 1);
-}
-
-bool arbolB::ayuda_hnoIzq(nodo *padre, int posActual)
-{
-    return (posActual > 0 && padre->hijos[posActual - 1]->Nclaves > d - 1);
-}
-
-void arbolB::juntar(nodo *padre, int pos, int posActual)
-{
-    nodo *actual = padre->hijos[posActual];
-    nodo *hermano = padre->hijos[pos];
-    if (pos < posActual)
-    {
-        int temp = pos;
-        pos = posActual;
-        posActual = temp;
-
-        nodo *temp_nodo = actual;
-        actual = hermano;
-        hermano = temp_nodo;
-    }
-
-    hermano->claves[d - 1] = padre->claves[posActual];
-    hermano->Nclaves++;
-
-    for (int i = 0; i < actual->Nclaves; i++)
-    {
-        hermano->claves[d + i] = actual->claves[i];
-        hermano->Nclaves++;
-    }
-
-    if (!actual->hoja)
-    {
-        for (int i = 0; i <= actual->Nclaves; i++)
-        {
-            hermano->hijos[d + i] = actual->hijos[i];
-        }
-    }
-
-    delete actual;
-
-    for (int i = posActual; i < padre->Nclaves - 1; i++)
-    {
-        padre->claves[i] = padre->claves[i + 1];
-        padre->hijos[i + 1] = padre->hijos[i + 2];
-    }
-
-    padre->Nclaves--;
-
-    if (padre->Nclaves == 0 && padre == raiz)
-    {
-        delete padre;
-        raiz = hermano;
-    }
-}
-
-void arbolB::reemplazar_der(nodo *actual, nodo *padre, int posActual)
-{
-    nodo *hijo_der = actual->hijos[0];
-    int clave = padre->claves[posActual];
-    padre->claves[posActual] = actual->claves[0];
-
-    for (int i = 0; i < actual->Nclaves - 1; i++)
-    {
-        actual->claves[i] = actual->claves[i + 1];
-    }
-
-    actual->claves[actual->Nclaves - 1] = clave;
-
-    for (int i = 0; i < actual->Nclaves; i++)
-    {
-        actual->hijos[i] = actual->hijos[i + 1];
-    }
-
-    actual->hijos[actual->Nclaves] = hijo_der;
-
-    actual->Nclaves--;
-
-    if (hijo_der->Nclaves < d - 1)
-    {
-        ajustar_nodo(0, actual);
-    }
-}
-
-void arbolB::reemplazar_izq(nodo *actual, nodo *padre, int posActual)
-{
-    nodo *hijo_izq = actual->hijos[actual->Nclaves];
-    int clave = padre->claves[posActual - 1];
-    padre->claves[posActual - 1] = actual->claves[actual->Nclaves - 1];
-
-    actual->claves[actual->Nclaves - 1] = clave;
-
-    for (int i = actual->Nclaves; i > 0; i--)
-    {
-        actual->claves[i] = actual->claves[i - 1];
-    }
-
-    actual->claves[0] = clave;
-
-    for (int i = actual->Nclaves; i >= 0; i--)
-    {
-        actual->hijos[i + 1] = actual->hijos[i];
-    }
-
-    actual->hijos[0] = hijo_izq;
-
-    actual->Nclaves--;
-
-    if (hijo_izq->Nclaves < d - 1)
-    {
-        ajustar_nodo(actual->Nclaves, actual);
-    }
-}
-
-void arbolB::unir_hno_der(nodo *padre, int posClave, int posActual)
-{
-    nodo *actual = padre->hijos[posActual];
-    nodo *hermano = padre->hijos[posActual + 1];
-    actual->claves[d - 1] = padre->claves[posClave];
-    actual->Nclaves++;
-
-    for (int i = 0; i < hermano->Nclaves; i++)
-    {
-        actual->claves[d + i] = hermano->claves[i];
-        actual->Nclaves++;
-    }
-
-    if (!actual->hoja)
-    {
-        for (int i = 0; i <= hermano->Nclaves; i++)
-        {
-            actual->hijos[d + i] = hermano->hijos[i];
-        }
-    }
-
-    delete hermano;
-
-    for (int i = posClave; i < padre->Nclaves - 1; i++)
-    {
-        padre->claves[i] = padre->claves[i + 1];
-        padre->hijos[i + 1] = padre->hijos[i + 2];
-    }
-
-    padre->Nclaves--;
-
-    if (padre->Nclaves == 0 && padre == raiz)
-    {
-        delete padre;
-        raiz = actual;
-    }
-}
-
-void arbolB::unir_hno_izq(nodo *padre, int posClave, int posActual)
-{
-    nodo *actual = padre->hijos[posActual];
-    nodo *hermano = padre->hijos[posActual - 1];
-    hermano->claves[d - 1] = padre->claves[posClave - 1];
-    hermano->Nclaves++;
-
-    for (int i = 0; i < actual->Nclaves; i++)
-    {
-        hermano->claves[d + i] = actual->claves[i];
-        hermano->Nclaves++;
-    }
-
-    if (!actual->hoja)
-    {
-        for (int i = 0; i <= actual->Nclaves; i++)
-        {
-            hermano->hijos[d + i] = actual->hijos[i];
-        }
-    }
-
-    delete actual;
-
-    for (int i = posClave - 1; i < padre->Nclaves - 1; i++)
-    {
-        padre->claves[i] = padre->claves[i + 1];
-        padre->hijos[i + 1] = padre->hijos[i + 2];
-    }
-    padre->Nclaves--;
-
-    if (padre->Nclaves == 0 && padre == raiz)
-    {
-        delete padre;
-        raiz = hermano;
-    }
-}
-
-int arbolB::encontrar_predecesor(nodo *actual) {
-    if (actual->hoja) {
-        return actual->claves[actual->Nclaves - 1];
-    } else {
-        return encontrar_predecesor(actual->hijos[actual->Nclaves]);
-    }
-}
-
-int arbolB::encontrar_sucesor(nodo *actual) {
-    if (actual->hoja) {
-        return actual->claves[0];
-    } else {
-        return encontrar_sucesor(actual->hijos[0]);
-    }
-}
-
-nodo *arbolB::encontrar_padre(nodo *nodo_actual, nodo *nodo_buscado) {
-    if (nodo_actual->hoja) {
-        return nullptr; // No se encontr√≥ el padre
-    }
-
-    for (int i = 0; i <= nodo_actual->Nclaves; i++) {
-        if (nodo_actual->hijos[i] == nodo_buscado) {
-            return nodo_actual;
-        }
-
-        nodo *resultado = encontrar_padre(nodo_actual->hijos[i], nodo_buscado);
-        if (resultado != nullptr) {
-            return resultado;
-        }
-    }
-
-    return nullptr; // No se encontr√≥ el padre
-}
-
-void arbolB::ajustarNivelPadre(nodo *actual, int posClave)
-{
-    if (actual == raiz && actual->Nclaves == 0)
-    {
-        nodo *nueva_raiz = actual->hijos[0];
-        delete actual;
-        raiz = nueva_raiz;
-    }
-    if (actual->Nclaves < d - 1 && actual != raiz)
-    {
-        nodo *padre = encontrar_padre(raiz, actual);
-        int posActual = buscar_lugarEntreHnos(actual->claves[0], padre);
-
-        if (ayuda_hnoDer(padre, posActual))
-            ajustar_nodo(posActual, actual);
-        else if (ayuda_hnoIzq(padre, posActual))
-            ajustar_nodo(posActual - 1, actual);
-        else
-        {
-            if (posActual < padre->Nclaves)
-                juntar(padre, posActual, posActual + 1);
-            else
-                juntar(padre, posActual - 1, posActual);
-        }
-    }
-}
-
-int arbolB::borrarEn_Ninterno(int pos, nodo *actual)
-{
-    nodo *hijo_izq = actual->hijos[pos];
-    nodo *hijo_der = actual->hijos[pos + 1];
-    if (hijo_izq->Nclaves >= d)
-    {
-        int predecesor = encontrar_predecesor(hijo_izq);
-        actual->claves[pos] = predecesor;
-        borrar(predecesor);
-    }
-    else if (hijo_der->Nclaves >= d)
-    {
-        int sucesor = encontrar_sucesor(hijo_der);
-        actual->claves[pos] = sucesor;
-        borrar(sucesor);
-    }
-    else
-    {
-        juntar(hijo_izq, pos, pos + 1);
-        borrar(actual->claves[pos]);
-    }
-
-    return 0;
 }
 
 #endif
+

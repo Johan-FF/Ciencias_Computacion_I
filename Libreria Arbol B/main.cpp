@@ -1,28 +1,31 @@
-#include <iostream>
+
 #include "ArbolB.h"
 
-using namespace std;
-
 int main() {
-    // Crea un Ã¡rbol B con un orden de 3
-    arbolB miArbol(3);
+    // Crear un árbol B con orden 3
+    arbolB arbol(3);
 
-    // Inserta algunas claves en el Ã¡rbol
-    miArbol.insertar(10);
-    miArbol.insertar(5);
-    miArbol.insertar(20);
-    miArbol.insertar(30);
-    miArbol.insertar(15);
+    // Insertar claves en el árbol
+    arbol.insertar(10);
+    arbol.insertar(20);
+    arbol.insertar(5);
+    arbol.insertar(15);
+    arbol.insertar(7);
 
-    miArbol.mostrar();
+    // Imprimir el árbol por niveles
+    arbol.imprimirArbol();
 
-    // Realiza algunas operaciones en el Ã¡rbol
-    bool encontrado = miArbol.buscar(25);
-    cout<<endl<<"Clave 25 encontrada? "<<(encontrado ? "Si" : "No")<<endl;
+    // Eliminar una clave del árbol
+    int claveEliminar = 5;
+    bool eliminado = arbol.borrar(claveEliminar);
+    if (eliminado) {
+        std::cout << "Clave eliminada del árbol." << std::endl;
+    } else {
+        std::cout << "Clave no encontrada en el árbol." << std::endl;
+    }
 
-    bool borrado = miArbol.borrar(20);
-    cout<<endl<<"Clave 20 borrada? "<<(borrado ? "Si" : "No")<<endl;
+    // Imprimir el árbol actualizado por niveles
+    arbol.imprimirArbol();
 
-    miArbol.mostrar();
     return 0;
 }

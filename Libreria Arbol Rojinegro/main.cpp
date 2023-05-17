@@ -2,14 +2,11 @@
 
 int main() {
 	ArbolRojoNegro arbol;
-	arbol.insertar(3);
-	arbol.insertar(1);
-	arbol.insertar(2);
-	arbol.insertar(5);
-	arbol.insertar(4);
-	arbol.insertar(6);
+	arbol.insertar(60);
+	arbol.insertar(90);
+	arbol.insertar(120);
+	arbol.insertar(140);
 	arbol.inorder(arbol.get_raiz());
-	if(arbol.eliminar_valor(2))
-		arbol.inorder(arbol.get_raiz());
+
 	return 0;
 }

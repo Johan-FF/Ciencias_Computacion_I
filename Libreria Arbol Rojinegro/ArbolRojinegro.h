@@ -406,18 +406,9 @@ public:
 }
 
     void inorder(Nodo *p){
-        if(p == NIL){
-			cout<<endl;
-            return;
-		}
-
-        if(p->subArbolDerecho)
-            inorder(p->subArbolIzquierdo);
-
+        inorder(p->subArbolIzquierdo);
         cout << p->valor << " ";
-
-        if(p->subArbolIzquierdo)
-            inorder(p->subArbolDerecho);
+        inorder(p->subArbolDerecho);
     }
 
 	Nodo* get_raiz() {
